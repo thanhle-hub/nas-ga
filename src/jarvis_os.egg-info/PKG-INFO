@@ -1,0 +1,19 @@
+Metadata-Version: 2.4
+Name: jarvis-os
+Version: 0.1.0
+Summary: Modular AI Operating System
+Author: Le Minh Thanh
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+
+# JARVIS OS
+
+A modular AI Operating System built with Python.
+
+## Version
+
+v0.1.0 Foundation
+
+## Author
+
+Le Minh Thanh
