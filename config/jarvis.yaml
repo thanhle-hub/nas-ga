@@ -1,0 +1,21 @@
+system:
+  name: JARVIS
+  version: 0.1.0
+
+
+plugins:
+  directory: plugins
+  auto_load: true
+
+
+ai:
+  provider: ollama
+  model: llama3
+
+
+voice:
+  enabled: false
+
+
+logging:
+  level: INFO

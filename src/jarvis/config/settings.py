@@ -1,28 +1,59 @@
 """
-Global application settings.
+JARVIS configuration models.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from pathlib import Path
+from pydantic import BaseModel
 
 
-@dataclass(frozen=True, slots=True)
-class Settings:
-    """Application configuration."""
+class SystemSettings(BaseModel):
 
-    app_name: str = "JARVIS OS"
-    version: str = "0.1.0"
+    name: str
 
-    @property
-    def project_root(self) -> Path:
-        return Path(__file__).resolve().parents[3]
+    version: str
 
-    @property
-    def log_directory(self) -> Path:
-        return self.project_root / "logs"
 
-    @property
-    def data_directory(self) -> Path:
-        return self.project_root / "data"
+
+class PluginSettings(BaseModel):
+
+    directory: str = "plugins"
+
+    auto_load: bool = True
+
+
+
+class AISettings(BaseModel):
+
+    provider: str
+
+    model: str
+
+
+
+class VoiceSettings(BaseModel):
+
+    enabled: bool = False
+
+
+
+class LoggingSettings(BaseModel):
+
+    level: str = "INFO"
+
+
+
+class JarvisSettings(BaseModel):
+    """
+    Main application settings.
+    """
+
+    system: SystemSettings
+
+    plugins: PluginSettings
+
+    ai: AISettings
+
+    voice: VoiceSettings
+
+    logging: LoggingSettings
