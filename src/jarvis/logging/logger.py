@@ -8,6 +8,7 @@ import logging
 from pathlib import Path
 
 
+
 class JarvisLogger:
     """
     Central logging manager.
@@ -20,6 +21,7 @@ class JarvisLogger:
         log_dir: str = "logs",
         level: int = logging.INFO,
     ) -> None:
+
 
         self.name = name
 
@@ -39,6 +41,7 @@ class JarvisLogger:
         Create configured logger.
         """
 
+
         self.log_dir.mkdir(
             exist_ok=True
         )
@@ -48,13 +51,19 @@ class JarvisLogger:
             self.name
         )
 
+
         logger.setLevel(
             self.level
         )
 
 
+        # Remove old handlers
+        # to support multiple instances/tests
+
         if logger.handlers:
-            return logger
+
+            logger.handlers.clear()
+
 
 
         formatter = logging.Formatter(
@@ -65,25 +74,33 @@ class JarvisLogger:
         )
 
 
-        console = logging.StreamHandler()
 
-        console.setFormatter(
+        console_handler = (
+            logging.StreamHandler()
+        )
+
+        console_handler.setFormatter(
             formatter
         )
 
 
-        file_handler = logging.FileHandler(
-            self.log_dir / "jarvis.log",
-            encoding="utf-8",
+
+        file_handler = (
+            logging.FileHandler(
+                self.log_dir / "jarvis.log",
+                encoding="utf-8",
+            )
         )
+
 
         file_handler.setFormatter(
             formatter
         )
 
 
+
         logger.addHandler(
-            console
+            console_handler
         )
 
         logger.addHandler(
@@ -95,7 +112,9 @@ class JarvisLogger:
 
 
 
-    def get_logger(self) -> logging.Logger:
+    def get_logger(
+        self,
+    ) -> logging.Logger:
         """
         Return logger instance.
         """

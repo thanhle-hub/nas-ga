@@ -1,19 +1,50 @@
-from pathlib import Path
-import sys
+from jarvis.bootstrap import JarvisBootstrap
 
-PROJECT_ROOT = Path(__file__).resolve().parent
-SRC_DIR = PROJECT_ROOT / "src"
+from jarvis.brain import (
+    Brain,
+    BrainExecutor,
+    BrainPipeline,
+)
 
-if str(SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(SRC_DIR))
+from jarvis.interface import CLIInterface
 
-from jarvis.application.app import JarvisApplication
+from jarvis.memory import MemoryManager
 
 
-def main() -> None:
-    application = JarvisApplication()
-    application.run()
+
+def main():
+
+    bootstrap = JarvisBootstrap()
+
+    bootstrap.start()
+
+
+    memory = MemoryManager()
+
+
+    brain = Brain()
+
+
+    executor = BrainExecutor(
+        memory
+    )
+
+
+    pipeline = BrainPipeline(
+        brain,
+        executor,
+    )
+
+
+    cli = CLIInterface(
+        pipeline
+    )
+
+
+    cli.start()
+
 
 
 if __name__ == "__main__":
+
     main()

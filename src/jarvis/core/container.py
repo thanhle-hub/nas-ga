@@ -1,53 +1,198 @@
 """
-Dependency Injection Container.
+Dependency injection container.
+
+Provides:
+- Service registration
+- Instance registration
+- Dependency resolution
+- Backward compatibility
 """
 
 from __future__ import annotations
 
-from typing import Any, Dict, Type
+from typing import Type
+
+from .registry import ServiceRegistry
+from .service import ServiceDescriptor
+
 
 
 class ServiceContainer:
-    """Simple dependency injection container."""
+    """
+    Dependency injection container.
+
+    Supports:
+
+    New API:
+        register()
+        resolve()
+
+    Legacy API:
+        register_instance()
+        get()
+    """
+
 
     def __init__(self) -> None:
-        self._services: Dict[Type[Any], Any] = {}
+
+        self.registry = ServiceRegistry()
+
+
+
+    def register(
+        self,
+        interface: Type,
+        implementation: Type | None = None,
+        singleton: bool = True,
+    ) -> None:
+        """
+        Register a service class.
+
+        Example:
+
+            container.register(
+                Database,
+                Database
+            )
+        """
+
+
+        if implementation is None:
+            implementation = interface
+
+
+        self.registry.register(
+            interface,
+            implementation,
+            singleton,
+        )
+
+
 
     def register_instance(
         self,
-        interface: Type[Any],
-        instance: Any,
+        interface: Type,
+        instance: object,
     ) -> None:
         """
-        Register an existing instance.
+        Register an existing object instance.
+
+        Used for objects that are
+        already initialized.
+
+        Example:
+
+            db = Database()
+
+            container.register_instance(
+                Database,
+                db
+            )
         """
-        self._services[interface] = instance
+
+
+        descriptor = ServiceDescriptor(
+            interface=interface,
+            implementation=type(instance),
+            singleton=True,
+            instance=instance,
+        )
+
+
+        self.registry._services[interface] = descriptor
+
+
+
+    def resolve(
+        self,
+        interface: Type,
+    ) -> object:
+        """
+        Resolve service instance.
+
+        Example:
+
+            database = container.resolve(
+                Database
+            )
+        """
+
+
+        descriptor = (
+            self.registry.get(
+                interface
+            )
+        )
+
+
+        if descriptor is None:
+
+            raise ValueError(
+                f"Service not registered: {interface}"
+            )
+
+
+
+        # Return existing singleton
+
+        if (
+            descriptor.singleton
+            and descriptor.instance is not None
+        ):
+
+            return descriptor.instance
+
+
+
+        # Create new instance
+
+        instance = (
+            descriptor.implementation()
+        )
+
+
+
+        # Save singleton
+
+        if descriptor.singleton:
+
+            descriptor.instance = instance
+
+
+
+        return instance
+
+
 
     def get(
         self,
-        interface: Type[Any],
-    ) -> Any:
+        interface: Type,
+    ) -> object:
         """
-        Resolve a service.
-        """
-        if interface not in self._services:
-            raise KeyError(
-                f"Service '{interface.__name__}' is not registered."
-            )
+        Backward compatible method.
 
-        return self._services[interface]
+        Old JARVIS API:
 
-    def is_registered(
-        self,
-        interface: Type[Any],
-    ) -> bool:
+            container.get(Service)
+
+        New API:
+
+            container.resolve(Service)
         """
-        Check whether a service is registered.
-        """
-        return interface in self._services
+
+        return self.resolve(interface)
+
+
 
     def clear(self) -> None:
         """
-        Remove every registered service.
+        Remove all registered services.
         """
-        self._services.clear()
+
+        self.registry._services.clear()
+
+
+
+# Future architecture alias
+
+Container = ServiceContainer
